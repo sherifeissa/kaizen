@@ -1,0 +1,9 @@
+# Your private config — copied from Config.example.gs, holds your Telegram
+# token, chat ID, and (optionally) Sheet ID. Never commit this.
+Config.gs
+
+# Local editor / OS noise
+.DS_Store
+.vscode/
+.idea/
+node_modules/
