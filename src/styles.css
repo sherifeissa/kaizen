@@ -1,0 +1,141 @@
+  :root{
+    /* Shinkai Night — indigo / gold */
+    --bg:#0d1424; --card:#141d33; --card2:#1b2740; --line:#26314d;
+    --txt:#eef2fb; --mut:#9fb0cf; --dim:#6b7a9c;
+    --accent:#6ea8ff; --green:#3ecf8e; --amber:#f4b740; --red:#ff6b6b; --gold:#f0c674;
+    --r:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{background:radial-gradient(1200px 820px at 50% -12%, #17274a 0%, #0d1424 52%, #0a0f1c 100%) fixed;}
+  html,body{margin:0; padding:0; color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{margin:0; min-height:100vh; background:transparent;}
+  #app{width:min(560px, 100% - 24px); margin:18px auto 104px; padding:4px 16px 18px;
+    background:rgba(13,20,36,.5); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.09); border-radius:22px; box-shadow:0 22px 60px rgba(0,0,0,.45);}
+  h1{margin:0; font-weight:650;}
+  .muted{color:var(--mut);} .dim{color:var(--dim);}
+  .small{font-size:13px;} .tiny{font-size:11px;}
+
+  header{position:static; background:transparent; padding:14px 4px 8px;}
+  .topbar{display:flex; justify-content:space-between; align-items:center;}
+  .date{font-size:13px; color:var(--mut); letter-spacing:.4px; text-transform:uppercase;}
+  .htitle{display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;}
+  .htitle h1{font-size:22px;}
+  .streak{font-size:13px; color:var(--gold); font-weight:600;}
+  .syncdot{font-size:11px; color:var(--dim); display:flex; align-items:center; gap:5px;}
+  .syncdot i{width:8px; height:8px; border-radius:50%; background:var(--dim); display:inline-block;}
+
+  .banner{border-radius:var(--r); padding:13px 14px; margin:10px 0; font-size:14px; line-height:1.45;}
+  .banner.warn{background:rgba(255,93,93,.12); border:1px solid rgba(255,93,93,.35); color:#ffd0d0;}
+  .banner.come{background:rgba(110,168,255,.12); border:1px solid rgba(110,168,255,.4); color:#cfe0ff;}
+  .banner b{color:#fff;}
+
+  .tabs{position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:transparent; padding-bottom:12px;}
+  .tabs .inner{display:flex; width:min(420px, 100% - 24px); background:rgba(13,20,36,.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.1); border-radius:18px; box-shadow:0 10px 34px rgba(0,0,0,.4); overflow:hidden;}
+  .tab{flex:1; text-align:center; padding:12px 0 16px; font-size:12px; color:var(--dim); cursor:pointer; border:none; background:none;}
+  .tab .ico{display:block; font-size:19px; margin-bottom:3px;}
+  .tab.active{color:var(--accent);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:15px; margin-bottom:13px;}
+  .hrow{display:flex; align-items:center; gap:12px;}
+  .hicon{width:38px; height:38px; flex:0 0 38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; background:var(--card2);}
+  .hname{font-size:15.5px; font-weight:600;}
+  .hsub{font-size:12px; color:var(--dim); margin-top:1px;}
+  .hstate{margin-left:auto; font-size:11px; padding:3px 9px; border-radius:20px; background:var(--card2); color:var(--dim); white-space:nowrap;}
+  .hstate.full{background:rgba(62,207,142,.16); color:var(--green);}
+  .hstate.surv{background:rgba(244,183,64,.16); color:var(--amber);}
+  .ctl{margin-top:13px;}
+
+  /* tap cells: prayers (tri-state) + pushup sets */
+  .cells{display:flex; gap:8px;}
+  .pd{flex:1; aspect-ratio:1/1.15; border-radius:11px; background:var(--card2); border:1px solid var(--line);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:.12s; user-select:none;}
+  .pd b{font-size:12px; color:var(--mut); font-weight:600;}
+  .pd small{font-size:8.5px; color:var(--dim);}
+  .pd.on{background:var(--green); border-color:var(--green);} .pd.on b,.pd.on small{color:#06281b;}
+  .pd.late{background:var(--amber); border-color:var(--amber);} .pd.late b,.pd.late small{color:#3a2c00;}
+  .legend{display:flex; gap:14px; margin-top:9px; font-size:11px; color:var(--dim);}
+  .legend i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:4px; vertical-align:middle;}
+
+  .seg{display:flex; gap:8px;}
+  .seg button{flex:1; padding:11px 6px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--mut); font-size:13.5px; cursor:pointer;}
+  .seg button.on-f{background:rgba(62,207,142,.16); border-color:var(--green); color:var(--green); font-weight:600;}
+  .seg button.on-s{background:rgba(244,183,64,.16); border-color:var(--amber); color:var(--amber); font-weight:600;}
+
+  input,textarea{width:100%; background:var(--card2); border:1px solid var(--line); color:var(--txt); border-radius:11px; padding:11px 12px; font-size:14px; font-family:inherit; outline:none;}
+  input:focus,textarea:focus{border-color:var(--accent);}
+  textarea{resize:none; line-height:1.4;}
+  label.fld{display:block; font-size:12px; color:var(--mut); margin:0 0 6px 2px;}
+  .saverow{display:flex; gap:9px; align-items:center;} .saverow input{flex:1;}
+  .cur{color:var(--dim); font-size:13px;}
+  .toggle{display:flex; align-items:center; gap:9px; margin-top:9px; font-size:13px; color:var(--mut); cursor:pointer;}
+  .toggle .box{width:22px; height:22px; border-radius:7px; border:1px solid var(--line); background:var(--card2); flex:0 0 22px; display:flex; align-items:center; justify-content:center; font-size:13px;}
+  .toggle.on .box{background:var(--amber); border-color:var(--amber); color:#3a2c00;}
+  .reflect textarea{min-height:54px;}
+  .btn{display:block; width:100%; text-align:center; padding:13px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--mut); font-size:14px; cursor:pointer; margin-top:8px;}
+  .btn.ghost{background:none;}
+
+  .chain{display:grid; grid-template-columns:repeat(15,1fr); gap:5px;}
+  .cd{aspect-ratio:1/1; border-radius:4px; background:var(--card2); border:1px solid var(--line);}
+  .cd.s1{background:rgba(244,183,64,.5);} .cd.s2{background:rgba(62,207,142,.55);} .cd.s3{background:var(--green);}
+  .cd.today{outline:2px solid var(--accent); outline-offset:1px;}
+
+  .stat{display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line);}
+  .stat:last-child{border-bottom:none;}
+  .stat .bar{flex:1; height:8px; border-radius:6px; background:var(--card2); overflow:hidden;}
+  .stat .bar i{display:block; height:100%; border-radius:6px; background:var(--green);}
+  .stat .lab{width:104px; font-size:13px;} .stat .pct{width:42px; text-align:right; font-size:13px; color:var(--mut);}
+  .bar{height:8px; border-radius:6px; background:var(--card2); overflow:hidden;} .bar i{display:block; height:100%; border-radius:6px; background:var(--green);}
+  .reflist .ri{padding:10px 0; border-bottom:1px solid var(--line);} .reflist .ri:last-child{border:none;}
+  .reflist .rd{font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.3px;}
+  .reflist .rt{font-size:14px; margin-top:2px; line-height:1.4;}
+  .big{font-size:26px; font-weight:700;}
+  .sec-title{font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.5px; margin:4px 2px 10px;}
+  .empty{color:var(--dim); font-size:13px; text-align:center; padding:18px 0;}
+  .navday{display:flex; align-items:center; justify-content:space-between; margin:2px 0 10px;}
+  .navday button{background:var(--card2); border:1px solid var(--line); color:var(--mut); width:38px; height:34px; border-radius:10px; font-size:16px; cursor:pointer;}
+  .navday .d{font-size:13px; color:var(--mut);}
+  .savegoal{display:flex; gap:8px; align-items:center; margin-top:6px;} .savegoal input{flex:1;}
+
+  /* ---- daily anime art: background, side character, header avatar ---- */
+  #bgArt{position:fixed; inset:0; z-index:-2; background:center/cover no-repeat; opacity:0; transition:opacity .8s ease;}
+  #bgArt.on{opacity:.5;}
+  #sideArt{position:fixed; right:0; bottom:0; width:min(30vw,300px); height:min(72vh,660px);
+    background:bottom right/contain no-repeat; opacity:0; transition:opacity .8s ease; z-index:-1; pointer-events:none;
+    -webkit-mask-image:linear-gradient(to left,#000 38%,transparent 96%); mask-image:linear-gradient(to left,#000 38%,transparent 96%);}
+  #sideArt.on{opacity:.55;}
+  .avatar{width:30px; height:30px; flex:0 0 30px; border-radius:50%; background:center/cover no-repeat var(--card2);
+    border:1px solid var(--line); opacity:0; transition:opacity .5s;}
+  .avatar.on{opacity:1;}
+  #artCredit{position:fixed; right:9px; bottom:6px; z-index:0; font-size:9px; color:var(--dim); opacity:.55; pointer-events:none;}
+  @media (max-width:1099px){ #sideArt, #artCredit{display:none;} }
+
+  /* ---- daily anime motivation quote ---- */
+  .quote{position:relative; margin:12px 0 6px; padding:13px 15px 13px 16px; border-radius:var(--r);
+    background:linear-gradient(135deg, rgba(110,168,255,.11), rgba(240,198,116,.06));
+    border:1px solid var(--line); border-left:3px solid var(--gold);}
+  .quote .qt{font-size:14.5px; line-height:1.5; font-style:italic; color:var(--txt);}
+  .quote .qa{margin-top:8px; font-size:12px; color:var(--mut);}
+  .quote .qa b{color:var(--gold); font-weight:600;}
+  .quote .qsrc{color:var(--mut); font-style:italic;}
+
+  /* Single centered glass panel at every width — identical on mobile web and
+     desktop web app. On larger screens, give the panel a touch more breathing room. */
+  @media (min-width:760px){
+    #app{margin-top:34px; padding:6px 20px 22px;}
+  }
+
+  /* Desktop dashboard: habits on the left, a live info rail on the right, so wide
+     screens are filled with purpose. The rail is hidden on mobile/tablet. */
+  #rail{display:none; flex-direction:column; gap:13px;}
+  .railcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:14px; text-align:center;}
+  .railcard.art{padding:8px;}
+  .railart{width:100%; aspect-ratio:4/5; background:center/cover no-repeat var(--card2); border-radius:13px;}
+  @media (min-width:1000px){
+    #app{width:min(980px, 100% - 48px); display:grid; grid-template-columns:1fr 296px;
+      grid-template-areas:"head head" "view rail"; column-gap:18px; align-items:start; padding:8px 22px 26px;}
+    header{grid-area:head;}
+    #view{grid-area:view; min-width:0;}
+    #rail{grid-area:rail; display:flex;}
+  }

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d1424">
+<title>Kaizen</title>
+<style>
+  :root{
+    /* Shinkai Night — indigo / gold */
+    --bg:#0d1424; --card:#141d33; --card2:#1b2740; --line:#26314d;
+    --txt:#eef2fb; --mut:#9fb0cf; --dim:#6b7a9c;
+    --accent:#6ea8ff; --green:#3ecf8e; --amber:#f4b740; --red:#ff6b6b; --gold:#f0c674;
+    --r:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{background:radial-gradient(1200px 820px at 50% -12%, #17274a 0%, #0d1424 52%, #0a0f1c 100%) fixed;}
+  html,body{margin:0; padding:0; color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  body{margin:0; min-height:100vh; background:transparent;}
+  #app{width:min(560px, 100% - 24px); margin:18px auto 104px; padding:4px 16px 18px;
+    background:rgba(13,20,36,.5); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.09); border-radius:22px; box-shadow:0 22px 60px rgba(0,0,0,.45);}
+  h1{margin:0; font-weight:650;}
+  .muted{color:var(--mut);} .dim{color:var(--dim);}
+  .small{font-size:13px;} .tiny{font-size:11px;}
+
+  header{position:static; background:transparent; padding:14px 4px 8px;}
+  .topbar{display:flex; justify-content:space-between; align-items:center;}
+  .date{font-size:13px; color:var(--mut); letter-spacing:.4px; text-transform:uppercase;}
+  .htitle{display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;}
+  .htitle h1{font-size:22px;}
+  .streak{font-size:13px; color:var(--gold); font-weight:600;}
+  .syncdot{font-size:11px; color:var(--dim); display:flex; align-items:center; gap:5px;}
+  .syncdot i{width:8px; height:8px; border-radius:50%; background:var(--dim); display:inline-block;}
+
+  .banner{border-radius:var(--r); padding:13px 14px; margin:10px 0; font-size:14px; line-height:1.45;}
+  .banner.warn{background:rgba(255,93,93,.12); border:1px solid rgba(255,93,93,.35); color:#ffd0d0;}
+  .banner.come{background:rgba(110,168,255,.12); border:1px solid rgba(110,168,255,.4); color:#cfe0ff;}
+  .banner b{color:#fff;}
+
+  .tabs{position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:transparent; padding-bottom:12px;}
+  .tabs .inner{display:flex; width:min(420px, 100% - 24px); background:rgba(13,20,36,.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.1); border-radius:18px; box-shadow:0 10px 34px rgba(0,0,0,.4); overflow:hidden;}
+  .tab{flex:1; text-align:center; padding:12px 0 16px; font-size:12px; color:var(--dim); cursor:pointer; border:none; background:none;}
+  .tab .ico{display:block; font-size:19px; margin-bottom:3px;}
+  .tab.active{color:var(--accent);}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:15px; margin-bottom:13px;}
+  .hrow{display:flex; align-items:center; gap:12px;}
+  .hicon{width:38px; height:38px; flex:0 0 38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; background:var(--card2);}
+  .hname{font-size:15.5px; font-weight:600;}
+  .hsub{font-size:12px; color:var(--dim); margin-top:1px;}
+  .hstate{margin-left:auto; font-size:11px; padding:3px 9px; border-radius:20px; background:var(--card2); color:var(--dim); white-space:nowrap;}
+  .hstate.full{background:rgba(62,207,142,.16); color:var(--green);}
+  .hstate.surv{background:rgba(244,183,64,.16); color:var(--amber);}
+  .ctl{margin-top:13px;}
+
+  /* tap cells: prayers (tri-state) + pushup sets */
+  .cells{display:flex; gap:8px;}
+  .pd{flex:1; aspect-ratio:1/1.15; border-radius:11px; background:var(--card2); border:1px solid var(--line);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; transition:.12s; user-select:none;}
+  .pd b{font-size:12px; color:var(--mut); font-weight:600;}
+  .pd small{font-size:8.5px; color:var(--dim);}
+  .pd.on{background:var(--green); border-color:var(--green);} .pd.on b,.pd.on small{color:#06281b;}
+  .pd.late{background:var(--amber); border-color:var(--amber);} .pd.late b,.pd.late small{color:#3a2c00;}
+  .legend{display:flex; gap:14px; margin-top:9px; font-size:11px; color:var(--dim);}
+  .legend i{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:4px; vertical-align:middle;}
+
+  .seg{display:flex; gap:8px;}
+  .seg button{flex:1; padding:11px 6px; border-radius:11px; border:1px solid var(--line); background:var(--card2); color:var(--mut); font-size:13.5px; cursor:pointer;}
+  .seg button.on-f{background:rgba(62,207,142,.16); border-color:var(--green); color:var(--green); font-weight:600;}
+  .seg button.on-s{background:rgba(244,183,64,.16); border-color:var(--amber); color:var(--amber); font-weight:600;}
+
+  input,textarea{width:100%; background:var(--card2); border:1px solid var(--line); color:var(--txt); border-radius:11px; padding:11px 12px; font-size:14px; font-family:inherit; outline:none;}
+  input:focus,textarea:focus{border-color:var(--accent);}
+  textarea{resize:none; line-height:1.4;}
+  label.fld{display:block; font-size:12px; color:var(--mut); margin:0 0 6px 2px;}
+  .saverow{display:flex; gap:9px; align-items:center;} .saverow input{flex:1;}
+  .cur{color:var(--dim); font-size:13px;}
+  .toggle{display:flex; align-items:center; gap:9px; margin-top:9px; font-size:13px; color:var(--mut); cursor:pointer;}
+  .toggle .box{width:22px; height:22px; border-radius:7px; border:1px solid var(--line); background:var(--card2); flex:0 0 22px; display:flex; align-items:center; justify-content:center; font-size:13px;}
+  .toggle.on .box{background:var(--amber); border-color:var(--amber); color:#3a2c00;}
+  .reflect textarea{min-height:54px;}
+  .btn{display:block; width:100%; text-align:center; padding:13px; border-radius:12px; border:1px solid var(--line); background:var(--card2); color:var(--mut); font-size:14px; cursor:pointer; margin-top:8px;}
+  .btn.ghost{background:none;}
+
+  .chain{display:grid; grid-template-columns:repeat(15,1fr); gap:5px;}
+  .cd{aspect-ratio:1/1; border-radius:4px; background:var(--card2); border:1px solid var(--line);}
+  .cd.s1{background:rgba(244,183,64,.5);} .cd.s2{background:rgba(62,207,142,.55);} .cd.s3{background:var(--green);}
+  .cd.today{outline:2px solid var(--accent); outline-offset:1px;}
+
+  .stat{display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line);}
+  .stat:last-child{border-bottom:none;}
+  .stat .bar{flex:1; height:8px; border-radius:6px; background:var(--card2); overflow:hidden;}
+  .stat .bar i{display:block; height:100%; border-radius:6px; background:var(--green);}
+  .stat .lab{width:104px; font-size:13px;} .stat .pct{width:42px; text-align:right; font-size:13px; color:var(--mut);}
+  .bar{height:8px; border-radius:6px; background:var(--card2); overflow:hidden;} .bar i{display:block; height:100%; border-radius:6px; background:var(--green);}
+  .reflist .ri{padding:10px 0; border-bottom:1px solid var(--line);} .reflist .ri:last-child{border:none;}
+  .reflist .rd{font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:.3px;}
+  .reflist .rt{font-size:14px; margin-top:2px; line-height:1.4;}
+  .big{font-size:26px; font-weight:700;}
+  .sec-title{font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.5px; margin:4px 2px 10px;}
+  .empty{color:var(--dim); font-size:13px; text-align:center; padding:18px 0;}
+  .navday{display:flex; align-items:center; justify-content:space-between; margin:2px 0 10px;}
+  .navday button{background:var(--card2); border:1px solid var(--line); color:var(--mut); width:38px; height:34px; border-radius:10px; font-size:16px; cursor:pointer;}
+  .navday .d{font-size:13px; color:var(--mut);}
+  .savegoal{display:flex; gap:8px; align-items:center; margin-top:6px;} .savegoal input{flex:1;}
+
+  /* ---- daily anime art: background, side character, header avatar ---- */
+  #bgArt{position:fixed; inset:0; z-index:-2; background:center/cover no-repeat; opacity:0; transition:opacity .8s ease;}
+  #bgArt.on{opacity:.5;}
+  #sideArt{position:fixed; right:0; bottom:0; width:min(30vw,300px); height:min(72vh,660px);
+    background:bottom right/contain no-repeat; opacity:0; transition:opacity .8s ease; z-index:-1; pointer-events:none;
+    -webkit-mask-image:linear-gradient(to left,#000 38%,transparent 96%); mask-image:linear-gradient(to left,#000 38%,transparent 96%);}
+  #sideArt.on{opacity:.55;}
+  .avatar{width:30px; height:30px; flex:0 0 30px; border-radius:50%; background:center/cover no-repeat var(--card2);
+    border:1px solid var(--line); opacity:0; transition:opacity .5s;}
+  .avatar.on{opacity:1;}
+  #artCredit{position:fixed; right:9px; bottom:6px; z-index:0; font-size:9px; color:var(--dim); opacity:.55; pointer-events:none;}
+  @media (max-width:1099px){ #sideArt, #artCredit{display:none;} }
+
+  /* ---- daily anime motivation quote ---- */
+  .quote{position:relative; margin:12px 0 6px; padding:13px 15px 13px 16px; border-radius:var(--r);
+    background:linear-gradient(135deg, rgba(110,168,255,.11), rgba(240,198,116,.06));
+    border:1px solid var(--line); border-left:3px solid var(--gold);}
+  .quote .qt{font-size:14.5px; line-height:1.5; font-style:italic; color:var(--txt);}
+  .quote .qa{margin-top:8px; font-size:12px; color:var(--mut);}
+  .quote .qa b{color:var(--gold); font-weight:600;}
+  .quote .qsrc{color:var(--mut); font-style:italic;}
+
+  /* Single centered glass panel at every width — identical on mobile web and
+     desktop web app. On larger screens, give the panel a touch more breathing room. */
+  @media (min-width:760px){
+    #app{margin-top:34px; padding:6px 20px 22px;}
+  }
+
+  /* Desktop dashboard: habits on the left, a live info rail on the right, so wide
+     screens are filled with purpose. The rail is hidden on mobile/tablet. */
+  #rail{display:none; flex-direction:column; gap:13px;}
+  .railcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:14px; text-align:center;}
+  .railcard.art{padding:8px;}
+  .railart{width:100%; aspect-ratio:4/5; background:center/cover no-repeat var(--card2); border-radius:13px;}
+  @media (min-width:1000px){
+    #app{width:min(980px, 100% - 48px); display:grid; grid-template-columns:1fr 296px;
+      grid-template-areas:"head head" "view rail"; column-gap:18px; align-items:start; padding:8px 22px 26px;}
+    header{grid-area:head;}
+    #view{grid-area:view; min-width:0;}
+    #rail{grid-area:rail; display:flex;}
+  }
+</style>
+</head>
+<body>
+
+<div id="bgArt" aria-hidden="true"></div>
+<div id="sideArt" aria-hidden="true"></div>
+<div id="artCredit" aria-hidden="true"></div>
+
+<nav class="tabs"><div class="inner">
+  <button class="tab active" data-v="today"><span class="ico">◎</span>Today</button>
+  <button class="tab" data-v="week"><span class="ico">↗</span>This week</button>
+  <button class="tab" data-v="insights"><span class="ico">▦</span>Insights</button>
+</div></nav>
+
+<main id="app">
+  <header>
+    <div class="topbar">
+      <div class="date" id="topDate">—</div>
+      <div style="display:flex; align-items:center; gap:10px">
+        <div id="artAvatar" class="avatar" aria-hidden="true"></div>
+        <div class="syncdot" id="syncDot"><i></i>…</div>
+      </div>
+    </div>
+    <div class="htitle"><h1 id="topTitle">Today</h1><div class="streak" id="streak"></div></div>
+  </header>
+
+  <div id="view"></div>
+  <aside id="rail" aria-hidden="true"></aside>
+</main>
+
+<script>
+/* ===== state.js ===== */
+"use strict";
+/* ============================================================
+   state.js — app state, local storage & Google Apps Script sync
+   ============================================================ */
+
+const KEY = "daily-anchor-v1";
+const DEFAULT = { settings:{ moveGoal:4, shadowGoal:4 }, days:{}, weeks:{} };
+const hasGAS = (typeof google !== "undefined" && google.script && google.script.run); // true when served by Apps Script
+
+function normalize(o){
+  o = Object.assign({}, DEFAULT, o || {});
+  o.settings = Object.assign({ moveGoal:4, shadowGoal:4 }, o.settings || {});
+  o.days  = o.days  || {};
+  o.weeks = o.weeks || {};
+  return o;
+}
+function load(){ try{ return normalize(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return normalize(); } }
+function saveLocal(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+
+let S = load();
+let pushTimer = null;
+
+function save(){
+  S._ts = Date.now();
+  saveLocal();
+  if (hasGAS){ clearTimeout(pushTimer); pushTimer = setTimeout(pushRemote, 800); }
+}
+function pushRemote(){
+  pushTimer = null;               // debounce has fired
+  setSync("saving");
+  google.script.run.withSuccessHandler(()=>setSync("ok")).withFailureHandler(()=>setSync("err")).saveData(JSON.stringify(S));
+}
+function pullRemote(){
+  if (!hasGAS){ setSync("local"); return; }
+  setSync("syncing");
+  google.script.run.withSuccessHandler(str=>{ try{
+    if (str){ const ro = JSON.parse(str); if (ro && (ro._ts||0) > (S._ts||0)){ S = normalize(ro); saveLocal(); render(); } }
+    setSync("ok");
+  }catch(e){ setSync("err"); } }).withFailureHandler(()=>setSync("err")).loadData();
+}
+function setSync(state){
+  const e = document.getElementById("syncDot"); if (!e) return;
+  const m = { saving:["#f4b740","Saving…"], ok:["#3ecf8e","Synced"], err:["#ff6b6b","Offline — saved here"], syncing:["#6ea8ff","Syncing…"], local:["#6b7a9c","On this device"] };
+  const v = m[state] || m.local;
+  e.innerHTML = `<i style="background:${v[0]}"></i>${v[1]}`;
+}
+
+// Quietly re-check the server for newer data (near-live sync). Called on tab focus
+// and on a heartbeat. Skips while the tab is hidden, mid-save, or editing a field
+// (so it never clobbers something you're typing).
+function pollRemote(){
+  if (!hasGAS || document.hidden || pushTimer) return;
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === "TEXTAREA" || ae.tagName === "INPUT")) return;
+  google.script.run.withSuccessHandler(str=>{ try{
+    if (str){ const ro = JSON.parse(str); if (ro && (ro._ts||0) > (S._ts||0)){ S = normalize(ro); saveLocal(); render(); } }
+    setSync("ok");
+  }catch(e){} }).withFailureHandler(()=>{}).loadData();
+}
+
+
+/* ===== model.js ===== */
+/* ============================================================
+   model.js — dates, the day record, and habit scoring
+   ============================================================ */
+
+let cursor = new Date(); // which day the Today tab is showing
+
+function key(d){ const x = new Date(d.getTime() - d.getTimezoneOffset()*60000); return x.toISOString().slice(0,10); } // local calendar date
+function fmt(d){ return d.toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long" }); }
+function fmtFull(d){ return d.toLocaleDateString(undefined, { weekday:"long", day:"numeric", month:"long", year:"numeric" }); }
+function shortDate(d){ return d.toLocaleDateString(undefined, { weekday:"short", day:"numeric", month:"short" }); }
+function isToday(d){ return key(d) === key(new Date()); }
+function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function weekKey(d){ const x = new Date(d); const day = (x.getDay()+6)%7; x.setDate(x.getDate()-day); return key(x); } // Monday-anchored
+
+function moveGoal(){ return S.settings.moveGoal || 4; }       // pushup sets target (each set = 25)
+function shadowGoal(){ return S.settings.shadowGoal || 4; }   // shadow-jumping sets target (each set = 100)
+const SET_REPS = 25;
+const SHADOW_REPS = 100;
+
+function blankDay(){ return { prayers:[0,0,0,0,0], move:0, shadow:0, diet:null, comeback:false }; }
+function day(d){
+  const k = key(d); let r = S.days[k];
+  if (!r){ r = blankDay(); S.days[k] = r; }
+  if (!Array.isArray(r.prayers)){ const n = +r.prayer||0; r.prayers = [0,0,0,0,0].map((_,i)=> i<n ? 1 : 0); } // migrate old prayer count
+  // strip retired habits (money / learning / reflection) from any older records
+  delete r.learn; delete r.learnNote; delete r.saveAmt; delete r.saveSurv; delete r.reflection; delete r.prayer;
+  if (r.move === undefined)   r.move = 0;
+  if (r.shadow === undefined) r.shadow = 0;
+  r.move   = Math.max(0, Math.min(r.move,   moveGoal()));     // clamp sets to current goal
+  r.shadow = Math.max(0, Math.min(r.shadow, shadowGoal()));
+  return r;
+}
+
+// prayer cell states: 0 none, 1 on time, 2 late/made-up
+function prayed(r){ return r.prayers.filter(x=>x>0).length; }
+function onTime(r){ return r.prayers.filter(x=>x===1).length; }
+
+function pPrayer(r){ const p = prayed(r); return p===5 ? 2 : p>=1 ? 1 : 0; }
+function pMove(r){ const g = moveGoal(), m = Math.min(r.move||0, g); return m>=g ? 2 : m>=1 ? 1 : 0; }
+function pShadow(r){ const g = shadowGoal(), m = Math.min(r.shadow||0, g); return m>=g ? 2 : m>=1 ? 1 : 0; }
+function pDiet(r){ return r.diet==="full" ? 2 : r.diet==="surv" ? 1 : 0; }
+
+function dayScore(r){ return pPrayer(r)+pMove(r)+pShadow(r)+pDiet(r); } // 0..8
+function dayLevel(r){ const s = dayScore(r); if (s===0) return 0; if (s>=7) return 3; if (s>=4) return 2; return 1; }
+function missed(d){ const k = key(d); const r = S.days[k]; return !r || dayScore(day(d))===0; }
+function currentStreak(){ let n=0, d=new Date(); if (missed(d)) d=addDays(d,-1); while(!missed(d)){ n++; d=addDays(d,-1); } return n; }
+
+
+/* ===== views.js ===== */
+/* ============================================================
+   views.js — rendering the three tabs (Today / Week / Insights)
+   ============================================================ */
+
+let V = "today";
+function render(){ if (V==="today") renderToday(); else if (V==="week") renderWeek(); else renderInsights(); renderRail(); }
+
+/* ---------------- DESKTOP INFO RAIL (wide screens only) ---------------- */
+function renderRail(){
+  const rail = el("rail"); if (!rail) return;
+  const st = currentStreak();
+  const wk = weekKey(new Date()); const w = S.weeks[wk] || {};
+  const days7 = [...Array(7)].map((_,i)=>{ const d=addDays(new Date(),-6+i); const lv=missed(d)?0:dayLevel(day(d)); return `<div class="cd s${lv} ${isToday(d)?'today':''}" title="${fmt(d)}"></div>`; }).join("");
+  const art = (typeof ART_TODAY !== "undefined" && ART_TODAY)
+    ? `<div class="railcard art"><div class="railart" style="background-image:url('${ART_TODAY.u}')"></div><div class="tiny dim" style="margin-top:8px">${esc(ART_TODAY.s)}</div></div>`
+    : "";
+  rail.innerHTML =
+    art +
+    `<div class="railcard"><div class="big" style="color:var(--gold)">${st}</div><div class="tiny dim">day streak alive</div></div>` +
+    `<div class="railcard"><div class="sec-title" style="text-align:left">This week</div>` +
+      `<div class="chain" style="grid-template-columns:repeat(7,1fr)">${days7}</div>` +
+      (w.plan ? `<div class="small muted" style="margin-top:9px;text-align:left;line-height:1.45">${esc(w.plan)}</div>`
+              : `<div class="tiny dim" style="margin-top:9px;text-align:left">No weekly move set yet.</div>`) +
+    `</div>`;
+}
+
+function el(id){ return document.getElementById(id); }
+function esc(s){ return (s||"").replace(/[&<>"]/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
+function stCls(p){ return p===2 ? "full" : p===1 ? "surv" : ""; }
+function stTxt(p,full,surv){ return p===2 ? full : p===1 ? surv : "—"; }
+function exitComeback(r){ if (r.comeback && dayScore(r)>0) r.comeback = false; }
+
+/* ---------------- TODAY ---------------- */
+function renderToday(){
+  const r = day(cursor), st = currentStreak();
+  el("topDate").textContent  = fmtFull(cursor);                                  // full date, always shown on Today
+  el("topTitle").textContent = isToday(cursor) ? "Today" : fmt(cursor).split(",")[0];
+  el("streak").textContent   = st>0 ? "🔥 "+st+" day"+(st>1?"s":"")+" alive" : "";
+
+  let banner = "";
+  if (isToday(cursor)){
+    if (r.comeback){
+      banner = `<div class="banner come"><b>Welcome back.</b> Forget the others today — just pray. That's the whole task: one thread, re-tied. Tomorrow we add one more. <span class="dim">(log anything to exit comeback mode)</span></div>`;
+    } else if (missed(addDays(cursor,-1)) && missed(addDays(cursor,-2)) && dayScore(r)===0){
+      banner = `<div class="banner warn"><b>Two empty days behind you.</b> This is the exact moment it usually dies. Don't let today be the third — do <b>one</b> thing now, even a single prayer. Never miss twice.</div>`;
+    }
+  }
+
+  const pNames = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
+  const prayerCells = r.prayers.map((s,i)=>{ const cls = s===1?"on":s===2?"late":""; const cap = s===1?"on time":s===2?"late":"—";
+    return `<div class="pd ${cls}" data-p="${i}"><b>${pNames[i]}</b><small>${cap}</small></div>`; }).join("");
+
+  const g = moveGoal(), mv = Math.min(r.move||0, g);
+  const setCells = [...Array(g)].map((_,i)=>{ const n=i+1; return `<div class="pd ${mv>=n?'on':''}" data-m="${n}"><b>${n}×</b><small>${n*SET_REPS}</small></div>`; }).join("");
+
+  const sg = shadowGoal(), sv = Math.min(r.shadow||0, sg);
+  const shadowCells = [...Array(sg)].map((_,i)=>{ const n=i+1; return `<div class="pd ${sv>=n?'on':''}" data-s="${n}"><b>${n}×</b><small>${n*SHADOW_REPS}</small></div>`; }).join("");
+
+  el("view").innerHTML = `
+  ${!isToday(cursor)?navDay():""}
+  ${banner}
+  ${isToday(cursor)?quoteHTML():""}
+
+  <div class="card">
+    <div class="hrow"><div class="hicon">🕌</div>
+      <div><div class="hname">Prayers</div><div class="hsub">Tap: on time → late/made-up → not prayed</div></div>
+      <div class="hstate ${stCls(pPrayer(r))}">${prayed(r)}/5${onTime(r)<prayed(r)?` · ${onTime(r)} on time`:""}</div></div>
+    <div class="ctl"><div class="cells">${prayerCells}</div>
+      <div class="legend"><span><i style="background:var(--green)"></i>on time</span><span><i style="background:var(--amber)"></i>late / made up</span><span><i style="background:var(--card2);border:1px solid var(--line)"></i>not prayed</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hrow"><div class="hicon">💪</div>
+      <div><div class="hname">Wall pushups</div><div class="hsub">Goal: ${g}×${SET_REPS} (${g*SET_REPS}) · Survival: 1 set</div></div>
+      <div class="hstate ${stCls(pMove(r))}">${mv}/${g} sets</div></div>
+    <div class="ctl"><div class="cells">${setCells}</div>
+      <div class="tiny dim" style="margin-top:9px">Tap how many sets of ${SET_REPS} you've done today. Tap the same one again to undo.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hrow"><div class="hicon">🤸</div>
+      <div><div class="hname">Shadow jumping</div><div class="hsub">Goal: ${sg}×${SHADOW_REPS} (${sg*SHADOW_REPS}) · Survival: 1 set</div></div>
+      <div class="hstate ${stCls(pShadow(r))}">${sv}/${sg} sets</div></div>
+    <div class="ctl"><div class="cells">${shadowCells}</div>
+      <div class="tiny dim" style="margin-top:9px">Tap how many sets of ${SHADOW_REPS} you've done today. Tap the same one again to undo.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hrow"><div class="hicon">🥗</div>
+      <div><div class="hname">Diet</div><div class="hsub">Planned cheat meal = on plan · binge ≠ on plan</div></div>
+      <div class="hstate ${stCls(pDiet(r))}">${stTxt(pDiet(r),"on plan","held")}</div></div>
+    <div class="ctl seg" data-h="diet">
+      <button data-v="full" class="${r.diet==='full'?'on-f':''}">On plan</button>
+      <button data-v="surv" class="${r.diet==='surv'?'on-s':''}">Didn't binge</button>
+      <button data-v="none">Off</button></div>
+  </div>
+
+  ${isToday(cursor)?`<button class="btn ghost" id="comebackBtn">${r.comeback?"I&rsquo;m okay — exit comeback mode":"I fell off / life blew up — reset my expectations"}</button>`:""}
+  ${!isToday(cursor)?`<button class="btn ghost" id="goToday">← Back to today</button>`:""}
+  `;
+
+  document.querySelectorAll("[data-p]").forEach(c=>c.onclick=()=>{ const i=+c.dataset.p; r.prayers[i]=(r.prayers[i]+1)%3; exitComeback(r); save(); renderToday(); });
+  document.querySelectorAll("[data-m]").forEach(c=>c.onclick=()=>{ const n=+c.dataset.m; r.move=(r.move===n)?n-1:n; exitComeback(r); save(); renderToday(); });
+  document.querySelectorAll("[data-s]").forEach(c=>c.onclick=()=>{ const n=+c.dataset.s; r.shadow=(r.shadow===n)?n-1:n; exitComeback(r); save(); renderToday(); });
+  document.querySelectorAll("[data-h=diet] button").forEach(b=>b.onclick=()=>{ const v=b.dataset.v; r.diet=v==="none"?null:v; exitComeback(r); save(); renderToday(); });
+  if (el("comebackBtn")) el("comebackBtn").onclick=()=>{ r.comeback=!r.comeback; save(); renderToday(); };
+  if (el("goToday")) el("goToday").onclick=()=>{ cursor=new Date(); renderToday(); };
+}
+function navDay(){ return `<div class="navday"><button id="prevD">‹</button><div class="d">${fmt(cursor)}</div><button id="nextD" ${isToday(cursor)?'disabled style="opacity:.3"':''}>›</button></div>`; }
+
+/* ---------------- THIS WEEK ---------------- */
+function renderWeek(){
+  el("topDate").textContent=""; el("topTitle").textContent="This week"; el("streak").textContent="";
+  const wk = weekKey(new Date()); if (!S.weeks[wk]) S.weeks[wk]={ plan:"", moved:false }; const w = S.weeks[wk];
+  const days7 = [...Array(7)].map((_,i)=>{ const d=addDays(new Date(),-6+i); const lv=missed(d)?0:dayLevel(day(d)); return `<div class="cd s${lv} ${isToday(d)?'today':''}" title="${fmt(d)}"></div>`; }).join("");
+  el("view").innerHTML = `
+  <div class="card">
+    <div class="sec-title">The weekly question — your steering wheel</div>
+    <div class="hrow"><div class="hicon">🎯</div><div><div class="hname">My future plan, this week</div><div class="hsub">Not daily. One real move toward the bigger thing.</div></div></div>
+    <div class="ctl"><label class="fld">What's the ONE move this week?</label>
+      <textarea id="plan" placeholder="e.g. 1 hour on the side plan, send that message, read 20 pages…">${esc(w.plan)}</textarea>
+      <div class="toggle ${w.moved?'on':''}" id="movedTog" style="margin-top:12px"><div class="box">${w.moved?'✓':''}</div><span>I moved it forward this week</span></div></div>
+  </div>
+  <div class="card"><div class="sec-title">Last 7 days — still on the board?</div>
+    <div class="chain" style="grid-template-columns:repeat(7,1fr)">${days7}</div>
+    <div class="tiny dim" style="margin-top:10px">Empty = missed · amber = survival · green = full. The goal isn't all-green — it's no two empties in a row.</div></div>
+  <div class="card"><div class="sec-title">Remember the rule</div>
+    <div class="small muted" style="line-height:1.55"><b style="color:var(--txt)">Never pause — only shrink.</b> A crushing week drops the habits to their survival minimum (~90 seconds), it doesn't stop them. The thread never gets cut, so there's nothing to "come back" from.<br><br><b style="color:var(--txt)">Never miss twice.</b> One zero day is life. Two in a row is how it dies. That's the only hard rule.</div></div>`;
+  el("plan").onchange=e=>{ w.plan=e.target.value; save(); };
+  el("movedTog").onclick=()=>{ w.moved=!w.moved; save(); renderWeek(); };
+}
+
+/* ---------------- INSIGHTS ---------------- */
+function renderInsights(){
+  el("topDate").textContent="Last 14 days"; el("topTitle").textContent="Insights"; el("streak").textContent="";
+  const days = [...Array(14)].map((_,i)=>addDays(new Date(),-13+i));
+  const present = days.filter(d=>!missed(d)).length;
+  function rate(fn){ const hit = days.filter(d=>{ const r=S.days[key(d)]; return r && fn(day(d))>0; }).length; return Math.round(100*hit/14); }
+  const rPray=rate(pPrayer), rMove=rate(pMove), rShadow=rate(pShadow), rDiet=rate(pDiet);
+  const onTimeTot = days.reduce((a,d)=>{ const r=S.days[key(d)]; return a+(r?onTime(day(d)):0); }, 0);
+  const prayedTot = days.reduce((a,d)=>{ const r=S.days[key(d)]; return a+(r?prayed(day(d)):0); }, 0);
+  const onTimePct = prayedTot ? Math.round(100*onTimeTot/prayedTot) : 0;
+  const setsTot = days.reduce((a,d)=>{ const r=S.days[key(d)]; return a+(r?Math.min(r.move||0,moveGoal()):0); }, 0);
+  const shadowTot = days.reduce((a,d)=>{ const r=S.days[key(d)]; return a+(r?Math.min(r.shadow||0,shadowGoal()):0); }, 0);
+
+  const chainDays = [...Array(15)].map((_,i)=>addDays(new Date(),-14+i));
+  const chain = chainDays.map(d=>{ const lv=missed(d)?0:dayLevel(day(d)); return `<div class="cd s${lv} ${isToday(d)?'today':''}" title="${fmt(d)}"></div>`; }).join("");
+  const spark = days.map(d=>{ const r=S.days[key(d)]; const p=r?prayed(day(d)):0; const ot=r?onTime(day(d)):0;
+    const col = p===0?'var(--line)':(ot===p?'var(--green)':'var(--amber)');
+    return `<div style="flex:1;display:flex;align-items:flex-end"><div style="width:100%;height:${(p/5)*100||4}%;min-height:3px;border-radius:3px 3px 0 0;background:${col}"></div></div>`; }).join("");
+
+  el("view").innerHTML = `
+  <div class="card full"><div class="sec-title">Were you present, or did the days pass by?</div>
+    <div class="hrow" style="gap:18px">
+      <div><div class="big">${present}<span class="muted" style="font-size:15px">/14</span></div><div class="tiny dim">days you showed up</div></div>
+      <div><div class="big">${currentStreak()}</div><div class="tiny dim">day streak now</div></div>
+      <div><div class="big">${onTimePct}<span class="muted" style="font-size:15px">%</span></div><div class="tiny dim">prayers on time</div></div>
+    </div>
+    <div class="chain" style="margin-top:16px">${chain}</div></div>
+
+  <div class="card"><div class="sec-title">Consistency by habit (14 days)</div>
+    ${statRow("🕌 Prayers",rPray)}${statRow("💪 Pushups",rMove)}${statRow("🤸 Shadow jump",rShadow)}${statRow("🥗 Diet",rDiet)}</div>
+
+  <div class="card"><div class="sec-title">Prayers — daily (green = all on time)</div>
+    <div style="display:flex;gap:3px;height:54px;align-items:flex-end">${spark}</div>
+    <div class="tiny dim" style="margin-top:8px">${(prayedTot/14).toFixed(1)} of 5 prayed/day · ${onTimePct}% on time</div></div>
+
+  <div class="card"><div class="sec-title">Pushups — 2-week volume</div>
+    <div class="big">${(setsTot*SET_REPS).toLocaleString()}<span class="muted" style="font-size:15px"> reps</span></div>
+    <div class="tiny dim" style="margin-top:6px">${setsTot} sets · ${(setsTot/14).toFixed(1)} sets/day (goal ${moveGoal()}/day)</div></div>
+
+  <div class="card"><div class="sec-title">Shadow jumping — 2-week volume</div>
+    <div class="big">${(shadowTot*SHADOW_REPS).toLocaleString()}<span class="muted" style="font-size:15px"> reps</span></div>
+    <div class="tiny dim" style="margin-top:6px">${shadowTot} sets · ${(shadowTot/14).toFixed(1)} sets/day (goal ${shadowGoal()}/day)</div></div>
+
+  <button class="btn ghost" id="exportBtn">⬆ Copy my 2 weeks (to share with my coach)</button>
+  <button class="btn ghost" id="backupBtn">💾 Backup all data (move to another device)</button>
+  <button class="btn ghost" id="restoreBtn">📥 Restore from a backup code</button>
+  `;
+  el("exportBtn").onclick=exportData;
+  el("backupBtn").onclick=backupData;
+  el("restoreBtn").onclick=restoreData;
+}
+function statRow(lab,pct){ return `<div class="stat"><div class="lab">${lab}</div><div class="bar"><i style="width:${pct}%"></i></div><div class="pct">${pct}%</div></div>`; }
+
+
+/* ===== data.js ===== */
+/* ============================================================
+   data.js — export for coaching, and backup / restore
+   ============================================================ */
+
+function exportData(){
+  const days = [...Array(14)].map((_,i)=>addDays(new Date(),-13+i));
+  let out = "MY LAST 2 WEEKS — Kaizen\n\n";
+  days.forEach(d=>{ const raw = S.days[key(d)]; if (!raw || dayScore(day(d))===0) return; const r = day(d);
+    out += `${shortDate(d)}: prayers ${prayed(r)}/5 (${onTime(r)} on time)`;
+    out += r.move ? `, pushups ${r.move}/${moveGoal()} sets (${r.move*SET_REPS})` : "";
+    out += r.shadow ? `, shadow jumping ${r.shadow}/${shadowGoal()} sets (${r.shadow*SHADOW_REPS})` : "";
+    out += r.diet ? `, diet ${r.diet==='full'?'on plan':"didn't binge"}` : "";
+    out += "\n"; });
+  const wk = S.weeks[weekKey(new Date())]; if (wk && wk.plan) out += `\nThis week's plan: ${wk.plan}${wk.moved?' (moved ✓)':''}\n`;
+  copyOrShow(out, "exportBtn", "✓ Copied — paste it to your coach");
+}
+
+function backupData(){ copyOrShow("DAILYANCHOR"+JSON.stringify(S), "backupBtn", "✓ Backup copied — paste it on your other device"); }
+
+function restoreData(){
+  const t = prompt("Paste your backup code here:"); if (!t) return;
+  try{
+    const j = JSON.parse(t.replace(/^DAILYANCHOR/, "")); if (!j.days) throw 0;
+    S = normalize(j); save(); renderInsights(); alert("Restored ✓");
+  }catch(e){ alert("That code didn't look right. Copy the whole thing from Backup and try again."); }
+}
+
+function copyOrShow(text, btnId, msg){
+  const done = ()=>{ const b = el(btnId); const o = b.textContent; b.textContent = msg; setTimeout(()=>{ b.textContent = o; }, 1900); };
+  try{
+    if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(()=>prompt("Copy this:", text)); }
+    else { prompt("Copy this:", text); }
+  }catch(e){ prompt("Copy this:", text); }
+}
+
+
+/* ===== art.js ===== */
+/* ============================================================
+   art.js — daily anime motivation: English quote + background/side art
+   ============================================================ */
+
+/* --- curated anime motivational quotes (English / subbed) --- */
+const QUOTES = [
+  { t:"Fall seven times, rise eight.", w:"Japanese proverb", a:"the spirit of Kaizen" },
+  { t:"A lesson without pain is meaningless. You cannot gain something without sacrificing something else in return.", w:"Edward Elric", a:"Fullmetal Alchemist" },
+  { t:"Hard work is worthless for those that don't believe in themselves.", w:"Naruto Uzumaki", a:"Naruto" },
+  { t:"A dropout will beat a genius through hard work.", w:"Rock Lee", a:"Naruto" },
+  { t:"If you don't take risks, you can't create a future.", w:"Monkey D. Luffy", a:"One Piece" },
+  { t:"Power comes in response to a need, not a desire.", w:"Goku", a:"Dragon Ball" },
+  { t:"The moment you think of giving up, think of the reason why you held on so long.", w:"Natsu Dragneel", a:"Fairy Tail" },
+  { t:"Fear is not evil. It tells you what your weakness is. Once you know your weakness, you can become stronger.", w:"Gildarts Clive", a:"Fairy Tail" },
+  { t:"People's lives don't end when they die. It ends when they lose faith.", w:"Itachi Uchiha", a:"Naruto" },
+  { t:"The world isn't perfect. But it's there for us, doing the best it can. That's what makes it so damn beautiful.", w:"Roy Mustang", a:"Fullmetal Alchemist" },
+  { t:"Believe in the me that believes in you.", w:"Kamina", a:"Gurren Lagann" },
+  { t:"Whatever you lose, you'll find it again. But what you throw away you'll never get back.", w:"Himura Kenshin", a:"Rurouni Kenshin" },
+  { t:"If you don't like your destiny, don't accept it. Have the courage to change it the way you want it to be.", w:"Naruto Uzumaki", a:"Naruto" },
+  { t:"Don't give up. There's no shame in falling down. The true shame is to not stand up again.", w:"Midorima Shintaro", a:"Kuroko no Basket" },
+  { t:"You should enjoy the little detours to the fullest. That's where you'll find things more important than what you want.", w:"Ging Freecss", a:"Hunter x Hunter" },
+  { t:"If you only face forward, there is something you will miss seeing.", w:"Vash the Stampede", a:"Trigun" },
+  { t:"No matter how deep the night, it always turns to day, eventually.", w:"Brook", a:"One Piece" },
+  { t:"A person grows up when he's able to overcome hardships. There are some things a person must learn on his own.", w:"Jiraiya", a:"Naruto" },
+  { t:"Being weak is nothing to be ashamed of. Staying weak is.", w:"Fuegoleon Vermillion", a:"Black Clover" },
+  { t:"The ones who aren't remembered are the ones who give up.", w:"Izuku Midoriya", a:"My Hero Academia" },
+  { t:"Whether you win or lose, looking back and learning from your experiences is part of life.", w:"Takenori Akagi", a:"Slam Dunk" },
+  { t:"It's not about whether you can. It's about whether or not you do it.", w:"Kakashi Hatake", a:"Naruto" },
+  { t:"Push through the pain — giving up hurts more.", w:"Vegeta", a:"Dragon Ball Z" },
+  { t:"Effort makes you. You'll regret someday if you don't do your best now.", w:"Nara Shikamaru", a:"Naruto" }
+];
+
+/* deterministic per-day index (same all day, changes at midnight) */
+function daySeed(){ const d = new Date(); return d.getFullYear()*1000 + Math.floor((d - new Date(d.getFullYear(),0,0)) / 86400000); }
+function dailyPick(arr){ return arr[daySeed() % arr.length]; }
+
+function quoteHTML(){
+  const q = dailyPick(QUOTES);
+  const who = q.a ? `${esc(q.w)} · <span class="qsrc">${esc(q.a)}</span>` : esc(q.w);
+  return `<div class="quote"><div class="qt">&ldquo;${esc(q.t)}&rdquo;</div><div class="qa">— <b>${who}</b></div></div>`;
+}
+
+/* --- daily shonen wallpaper (curated SFW list, rotates one per day) ---
+   These are direct image URLs, so they load everywhere (local + Apps Script)
+   with no API call / CORS / CSP involved. To add more, just append lines —
+   grab a wallpaper on https://wallhaven.cc (anime + SFW), open the full image,
+   and paste its URL here with the series name. */
+const WALLPAPERS = [
+  // Dragon Ball Z
+  { s:"Dragon Ball Z",     u:"https://w.wallhaven.cc/full/3q/wallhaven-3q6yqv.jpg" },
+  { s:"Dragon Ball Z",     u:"https://w.wallhaven.cc/full/d8/wallhaven-d8w81o.png" },
+  { s:"Dragon Ball Z",     u:"https://w.wallhaven.cc/full/9o/wallhaven-9o8yw1.png" },
+  { s:"Dragon Ball Z",     u:"https://w.wallhaven.cc/full/zp/wallhaven-zpodrw.png" },
+  { s:"Dragon Ball Z",     u:"https://w.wallhaven.cc/full/w5/wallhaven-w5ly36.png" },
+  { s:"Dragon Ball Z",     u:"https://w.wallhaven.cc/full/1q/wallhaven-1qq2ow.png" },
+  // Naruto
+  { s:"Naruto",            u:"https://w.wallhaven.cc/full/ly/wallhaven-lyjvlr.png" },
+  { s:"Naruto",            u:"https://w.wallhaven.cc/full/e8/wallhaven-e8eg6o.png" },
+  { s:"Naruto",            u:"https://w.wallhaven.cc/full/5y/wallhaven-5yygj5.jpg" },
+  { s:"Naruto",            u:"https://w.wallhaven.cc/full/5y/wallhaven-5ygmd3.png" },
+  { s:"Naruto",            u:"https://w.wallhaven.cc/full/yq/wallhaven-yqx2jk.png" },
+  { s:"Naruto",            u:"https://w.wallhaven.cc/full/yq/wallhaven-yqe81l.png" },
+  // Hunter x Hunter
+  { s:"Hunter x Hunter",   u:"https://w.wallhaven.cc/full/6d/wallhaven-6dpwll.jpg" },
+  { s:"Hunter x Hunter",   u:"https://w.wallhaven.cc/full/m3/wallhaven-m3g2l1.jpg" },
+  { s:"Hunter x Hunter",   u:"https://w.wallhaven.cc/full/o3/wallhaven-o3dg39.png" },
+  { s:"Hunter x Hunter",   u:"https://w.wallhaven.cc/full/j3/wallhaven-j38e5p.jpg" },
+  { s:"Hunter x Hunter",   u:"https://w.wallhaven.cc/full/k9/wallhaven-k965g7.png" },
+  { s:"Hunter x Hunter",   u:"https://w.wallhaven.cc/full/q6/wallhaven-q6z2m7.png" },
+  // Attack on Titan
+  { s:"Attack on Titan",   u:"https://w.wallhaven.cc/full/xe/wallhaven-xejeld.jpg" },
+  { s:"Attack on Titan",   u:"https://w.wallhaven.cc/full/9d/wallhaven-9dkwy1.png" },
+  { s:"Attack on Titan",   u:"https://w.wallhaven.cc/full/gp/wallhaven-gp8rdl.jpg" },
+  { s:"Attack on Titan",   u:"https://w.wallhaven.cc/full/jx/wallhaven-jx52dq.jpg" },
+  { s:"Attack on Titan",   u:"https://w.wallhaven.cc/full/3l/wallhaven-3l911v.jpg" },
+  { s:"Attack on Titan",   u:"https://w.wallhaven.cc/full/we/wallhaven-wey77r.jpg" },
+  // Demon Slayer
+  { s:"Demon Slayer",      u:"https://w.wallhaven.cc/full/qr/wallhaven-qr67er.png" },
+  { s:"Demon Slayer",      u:"https://w.wallhaven.cc/full/m3/wallhaven-m3m9lk.png" },
+  { s:"Demon Slayer",      u:"https://w.wallhaven.cc/full/ex/wallhaven-exr1rr.jpg" },
+  { s:"Demon Slayer",      u:"https://w.wallhaven.cc/full/x6/wallhaven-x6dped.jpg" },
+  { s:"Demon Slayer",      u:"https://w.wallhaven.cc/full/p9/wallhaven-p972d9.png" },
+  { s:"Demon Slayer",      u:"https://w.wallhaven.cc/full/7p/wallhaven-7p75yy.png" },
+  // My Hero Academia
+  { s:"My Hero Academia",  u:"https://w.wallhaven.cc/full/k8/wallhaven-k8kvld.jpg" },
+  { s:"My Hero Academia",  u:"https://w.wallhaven.cc/full/d8/wallhaven-d88lyo.jpg" },
+  { s:"My Hero Academia",  u:"https://w.wallhaven.cc/full/rq/wallhaven-rqry7j.png" },
+  { s:"My Hero Academia",  u:"https://w.wallhaven.cc/full/2y/wallhaven-2yo9px.png" },
+  { s:"My Hero Academia",  u:"https://w.wallhaven.cc/full/jx/wallhaven-jx15zm.jpg" },
+  { s:"My Hero Academia",  u:"https://w.wallhaven.cc/full/zp/wallhaven-zpyj2o.jpg" },
+  // Bleach
+  { s:"Bleach",            u:"https://w.wallhaven.cc/full/p9/wallhaven-p9zr5j.png" },
+  { s:"Bleach",            u:"https://w.wallhaven.cc/full/m3/wallhaven-m3e8r1.png" },
+  { s:"Bleach",            u:"https://w.wallhaven.cc/full/6d/wallhaven-6d1rwl.png" },
+  { s:"Bleach",            u:"https://w.wallhaven.cc/full/rr/wallhaven-rrxrl1.png" },
+  { s:"Bleach",            u:"https://w.wallhaven.cc/full/x6/wallhaven-x6x1pd.jpg" },
+  { s:"Bleach",            u:"https://w.wallhaven.cc/full/6d/wallhaven-6dxvoq.jpg" },
+  // One Piece
+  { s:"One Piece",         u:"https://w.wallhaven.cc/full/og/wallhaven-og2k7p.png" },
+  { s:"One Piece",         u:"https://w.wallhaven.cc/full/je/wallhaven-jev6lp.png" },
+  { s:"One Piece",         u:"https://w.wallhaven.cc/full/ly/wallhaven-ly2egp.png" },
+  { s:"One Piece",         u:"https://w.wallhaven.cc/full/gw/wallhaven-gw231e.png" },
+  { s:"One Piece",         u:"https://w.wallhaven.cc/full/7j/wallhaven-7j15m3.png" },
+  { s:"One Piece",         u:"https://w.wallhaven.cc/full/21/wallhaven-211qd9.png" },
+  // Jujutsu Kaisen
+  { s:"Jujutsu Kaisen",    u:"https://w.wallhaven.cc/full/rq/wallhaven-rqp2pq.png" },
+  { s:"Jujutsu Kaisen",    u:"https://w.wallhaven.cc/full/8g/wallhaven-8g9oo1.png" },
+  { s:"Jujutsu Kaisen",    u:"https://w.wallhaven.cc/full/zp/wallhaven-zpd88j.png" },
+  { s:"Jujutsu Kaisen",    u:"https://w.wallhaven.cc/full/21/wallhaven-21ox16.png" },
+];
+
+let ART_TODAY = null;   // the day's chosen wallpaper — read by the desktop rail
+
+function initArt(){
+  if (!WALLPAPERS.length) return;
+  const w = dailyPick(WALLPAPERS);
+  ART_TODAY = w;
+  if (typeof renderRail === "function") renderRail();   // fill the rail's art card
+  // preload first; only swap in the art once it actually loads (else keep the gradient)
+  const img = new Image();
+  img.onload = () => {
+    const bg = el("bgArt");     if (bg){ bg.style.backgroundImage = `url("${w.u}")`; bg.classList.add("on"); }
+    const av = el("artAvatar"); if (av){ av.style.backgroundImage = `url("${w.u}")`; av.classList.add("on"); }
+    const cr = el("artCredit"); if (cr){ cr.textContent = w.s; }
+  };
+  img.onerror = () => { /* dead URL or offline — night-sky gradient stays */ };
+  img.src = w.u;
+}
+
+
+/* ===== main.js ===== */
+/* ============================================================
+   main.js — wiring & boot (must load last)
+   ============================================================ */
+
+// bottom tab bar
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  V = t.dataset.v;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active", x===t));
+  render();
+});
+
+// day navigation arrows (rendered inside views)
+document.addEventListener("click", e=>{
+  if (e.target.id==="prevD"){ cursor = addDays(cursor,-1); renderToday(); }
+  if (e.target.id==="nextD" && !isToday(cursor)){ cursor = addDays(cursor,1); renderToday(); }
+});
+
+// near-live sync: re-check when the tab regains focus, and on a quiet heartbeat
+if (hasGAS){
+  document.addEventListener("visibilitychange", ()=>{ if (!document.hidden) pollRemote(); });
+  window.addEventListener("focus", pollRemote);
+  setInterval(pollRemote, 30000);
+}
+
+// boot
+render();
+setSync(hasGAS ? "syncing" : "local");
+pullRemote();
+initArt();
+
+</script>
+</body>
+</html>

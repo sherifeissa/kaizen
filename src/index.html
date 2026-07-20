@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d1424">
+<title>Kaizen</title>
+<style>
+/*{{STYLES}}*/
+</style>
+</head>
+<body>
+
+<div id="bgArt" aria-hidden="true"></div>
+<div id="sideArt" aria-hidden="true"></div>
+<div id="artCredit" aria-hidden="true"></div>
+
+<nav class="tabs"><div class="inner">
+  <button class="tab active" data-v="today"><span class="ico">◎</span>Today</button>
+  <button class="tab" data-v="week"><span class="ico">↗</span>This week</button>
+  <button class="tab" data-v="insights"><span class="ico">▦</span>Insights</button>
+</div></nav>
+
+<main id="app">
+  <header>
+    <div class="topbar">
+      <div class="date" id="topDate">—</div>
+      <div style="display:flex; align-items:center; gap:10px">
+        <div id="artAvatar" class="avatar" aria-hidden="true"></div>
+        <div class="syncdot" id="syncDot"><i></i>…</div>
+      </div>
+    </div>
+    <div class="htitle"><h1 id="topTitle">Today</h1><div class="streak" id="streak"></div></div>
+  </header>
+
+  <div id="view"></div>
+  <aside id="rail" aria-hidden="true"></aside>
+</main>
+
+<script>
+//{{SCRIPT}}
+</script>
+</body>
+</html>
